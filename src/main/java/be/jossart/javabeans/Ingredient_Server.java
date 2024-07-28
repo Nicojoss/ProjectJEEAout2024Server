@@ -51,10 +51,6 @@ public class Ingredient_Server implements Serializable{
 		IngredientDAO_Server dao = (IngredientDAO_Server) adf.getIngredientDAO();
 		return dao.find(id);
 	}
-	public static Ingredient_Server findId(Ingredient_Server ingredient) {
-		IngredientDAO_Server dao = (IngredientDAO_Server) adf.getIngredientDAO();
-		return dao.findId(ingredient);
-	}
 	//GETTERS SETTERS
 	public int getIdIngredient() {
 		return idIngredient;

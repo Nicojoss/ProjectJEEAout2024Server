@@ -16,5 +16,4 @@ public abstract class DAO_Server<T> {
 	public abstract boolean update(T obj);
 	
 	public abstract T find(int id);
-
 }

@@ -3,6 +3,7 @@ package be.jossart.dao;
 import java.sql.CallableStatement;
 
 
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -82,36 +83,11 @@ public class IngredientDAO_Server extends DAO_Server<Ingredient_Server>{
     	String query = "{ call findIngredientById(?, ?) }";
 	    try (CallableStatement cs = this.connect.prepareCall(query)) {
 	        cs.setInt(1, id);
-	        cs.registerOutParameter(3, OracleTypes.CURSOR);
+	        cs.registerOutParameter(2, OracleTypes.CURSOR);
 
 	        cs.execute();
 
-	        try (ResultSet resultSet = (ResultSet) cs.getObject(3)) {
-	            if (resultSet.next()) {
-	                ingredient = new Ingredient_Server();
-	                ingredient.setIdIngredient(resultSet.getInt("IdIngredient"));
-	                ingredient.setName(resultSet.getString("Name"));
-	                ingredient.setType(IngredientType.valueOf(resultSet
-	                		.getString("TypeIngredient")));
-	            }
-	        }
-	    } catch (SQLException e) {
-	        System.out.println("Error: " + e.getMessage());
-	    }
-
-	    return ingredient;
-    }
-    
-    public Ingredient_Server findId(Ingredient_Server ingredient) {
-    	String query = "{ call findIngredientId(?, ?, ?) }";
-	    try (CallableStatement cs = this.connect.prepareCall(query)) {
-	    	cs.setString(1, ingredient.getName());
-            cs.setString(2, ingredient.getType().name());
-	        cs.registerOutParameter(3, OracleTypes.CURSOR);
-
-	        cs.execute();
-
-	        try (ResultSet resultSet = (ResultSet) cs.getObject(3)) {
+	        try (ResultSet resultSet = (ResultSet) cs.getObject(2)) {
 	            if (resultSet.next()) {
 	                ingredient = new Ingredient_Server();
 	                ingredient.setIdIngredient(resultSet.getInt("IdIngredient"));

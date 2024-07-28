@@ -1,9 +1,11 @@
 package be.jossart.dao;
 
 import java.util.ArrayList;
+
 import java.util.List;
 import be.jossart.javabeans.Person_Server;
 import be.jossart.javabeans.RecipeGender;
+import be.jossart.javabeans.RecipeIngredient_Server;
 import be.jossart.javabeans.Recipe_Server;
 import oracle.jdbc.OracleTypes;
 import oracle.sql.ARRAY;
@@ -84,7 +86,7 @@ public class RecipeDAO_Server extends DAO_Server<Recipe_Server> {
 	    	cs.setInt(1, id);
             cs.registerOutParameter(2, OracleTypes.CURSOR);
 	        cs.execute();
-	        try (ResultSet resultSet = (ResultSet) cs.getObject(5)) {
+	        try (ResultSet resultSet = (ResultSet) cs.getObject(2)) {
 	            if (resultSet.next()) {
 	                person = new Person_Server();
 	                person.setIdPerson(resultSet.getInt("IdPerson"));
@@ -100,49 +102,6 @@ public class RecipeDAO_Server extends DAO_Server<Recipe_Server> {
 	        System.out.println("Error: " + e.getMessage());
 	    }
 	    return recipe;
-    }
-
-    public Recipe_Server findId(Recipe_Server recipe) {
-        String query = "{ call findRecipeId(?, ?, ?) }";
-	    try (CallableStatement cs = this.connect.prepareCall(query)) {
-	    	cs.setString(1, recipe.getName());
-            cs.setString(2, recipe.getRecipeGender().toString());
-            cs.setInt(3, recipe.getPerson().getIdPerson());
-            cs.registerOutParameter(4, OracleTypes.CURSOR);
-
-	        cs.execute();
-
-	        try (ResultSet resultSet = (ResultSet) cs.getObject(2)) {
-	            if (resultSet.next()) {
-	                recipe.setIdRecipe(resultSet.getInt("IdRecipe"));
-	            }
-	        }
-	    } catch (SQLException e) {
-	        System.out.println("Error: " + e.getMessage());
-	    }
-
-	    return recipe;
-    }
-    
-    public List<Integer> findIds(int personId) {
-        List<Integer> recipeIds = new ArrayList<>();
-        String query = "{ call getRecipeIdsByPerson(?, ?) }";
-        try (CallableStatement cs = this.connect.prepareCall(query)) {
-            cs.setInt(1, personId);
-            cs.registerOutParameter(2, OracleTypes.CURSOR);
-
-            cs.execute();
-
-            try (ResultSet resultSet = (ResultSet) cs.getObject(2)){
-            	while (resultSet.next()) {
-                    int recipeId = resultSet.getInt("idRecipe");
-                    recipeIds.add(recipeId);
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error getting recipe IDs by person: " + e.getMessage());
-        }
-        return recipeIds;
     }
     
 	public List<Recipe_Server> findRecipeByName(String recherche){

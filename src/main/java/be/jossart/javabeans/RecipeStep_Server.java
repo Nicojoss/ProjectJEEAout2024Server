@@ -1,7 +1,6 @@
 package be.jossart.javabeans;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Objects;
 
 import be.jossart.dao.AbstractDAOFactory_Server;
@@ -41,14 +40,6 @@ public class RecipeStep_Server implements Serializable{
 	public static RecipeStep_Server find(int id) {
 		RecipeStepDAO_Server dao = (RecipeStepDAO_Server) adf.getRecipeStepDAO();
 		return dao.find(id);
-	}
-	public static RecipeStep_Server findId(RecipeStep_Server recipeStep) {
-		RecipeStepDAO_Server dao = (RecipeStepDAO_Server) adf.getRecipeStepDAO();
-		return dao.findId(recipeStep);
-	}
-	public static List<Integer> findIds(int id) {
-		RecipeStepDAO_Server dao = (RecipeStepDAO_Server) adf.getRecipeStepDAO();
-		return dao.findIds(id);
 	}
 	//GETTERS SETTERS
 	public int getIdRecipeStep() {

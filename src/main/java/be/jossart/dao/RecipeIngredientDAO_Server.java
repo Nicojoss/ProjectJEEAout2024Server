@@ -1,12 +1,13 @@
 package be.jossart.dao;
 
 import java.sql.CallableStatement;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import be.jossart.javabeans.Ingredient_Server;
 import be.jossart.javabeans.RecipeIngredient_Server;
+import be.jossart.javabeans.Recipe_Server;
 import oracle.jdbc.OracleTypes;
 
 public class RecipeIngredientDAO_Server extends DAO_Server<RecipeIngredient_Server>{
@@ -20,8 +21,8 @@ public class RecipeIngredientDAO_Server extends DAO_Server<RecipeIngredient_Serv
 		boolean success = false;
 		String query = "{ call Insert_RecipeIngredient(?, ?, ?) }";
 		try (CallableStatement cs = this.connect.prepareCall(query)) {
-			cs.setInt(1, obj.getIngredient().getIdIngredient());
-            cs.setInt(2, obj.getRecipe().getIdRecipe());
+            cs.setInt(1, obj.getRecipe().getIdRecipe());
+			cs.setInt(2, obj.getIngredient().getIdIngredient());
             cs.setDouble(3, obj.getQuantity());
 			
 			cs.executeUpdate(); 
@@ -77,66 +78,32 @@ public class RecipeIngredientDAO_Server extends DAO_Server<RecipeIngredient_Serv
 		return null;
 	}
     
-    public RecipeIngredient_Server find(int idRecipe, int idIngredient) {
+    public RecipeIngredient_Server findRecipeIngredient(int idRecipe, int idIngredient) {
+    	Recipe_Server recipe = null;
+    	Ingredient_Server ingredient = null;
     	RecipeIngredient_Server recipeIngredient = null;
         String query = "{ call findRecipeIngredientById(?, ?, ?) }";
         try (CallableStatement cs = this.connect.prepareCall(query)) {
-            cs.setInt(1, idIngredient);
-            cs.setInt(2, idRecipe); 
+            cs.setInt(1, idRecipe);
+            cs.setInt(2, idIngredient); 
             cs.registerOutParameter(3, OracleTypes.CURSOR);
 
             cs.execute();
-            try (ResultSet resultSet = (ResultSet) cs.getObject(2)) {
+            try (ResultSet resultSet = (ResultSet) cs.getObject(3)) {
 	            if (resultSet.next()) {
+	            	recipe = new Recipe_Server();
+	            	recipe.setIdRecipe(idRecipe);
+	            	ingredient = new Ingredient_Server();
+	            	ingredient.setIdIngredient(idIngredient);
 	                recipeIngredient = new RecipeIngredient_Server();
-	                recipeIngredient.setIdRecipe(idRecipe);
-	                recipeIngredient.setIdIngredient(idIngredient);
-	                recipeIngredient.setQuantity(resultSet.getInt("Quantity"));
+	                recipeIngredient.setIngredient(ingredient);
+	                recipeIngredient.setRecipe(recipe);
+	                recipeIngredient.setQuantity(resultSet.getInt("quantity"));
 	            }
 	        }
 	    } catch (SQLException e) {
 	        System.out.println("Error: " + e.getMessage());
 	    }
 	    return recipeIngredient;
-    }
-   
-
-    public RecipeIngredient_Server findId(RecipeIngredient_Server recipeIngredient) {
-        String query = "{ call findRecipeIngredientId(?, ?, ?) }";
-        try (CallableStatement cs = this.connect.prepareCall(query)) {
-            cs.setDouble(1, recipeIngredient.getQuantity());
-            cs.setInt(2, recipeIngredient.getRecipe().getIdRecipe());
-            cs.registerOutParameter(3, OracleTypes.CURSOR);
-            cs.execute();
-            try (ResultSet resultSet = (ResultSet) cs.getObject(2)) {
-	            if (resultSet.next()) {
-	            	recipeIngredient.setIdIngredient(resultSet.getInt("IdIngredient"));
-	            }
-	        }
-	    } catch (SQLException e) {
-	        System.out.println("Error: " + e.getMessage());
-	    }
-	    return recipeIngredient;
-    }
-    
-    public List<Integer> findIds(int recipeId) {
-        List<Integer> ingredientIds = new ArrayList<>();
-        String query = "{ call getRecipeIngredientIdsByRecipe(?, ?) }";
-        try (CallableStatement cs = this.connect.prepareCall(query)) {
-            cs.setInt(1, recipeId);
-            cs.registerOutParameter(2, OracleTypes.CURSOR);
-
-            cs.execute();
-
-            try(ResultSet resultSet = (ResultSet) cs.getObject(2)){
-            	while (resultSet.next()) {
-                    int ingredientId = resultSet.getInt("IdIngredient");
-                    ingredientIds.add(ingredientId);
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error getting recipe ingredient IDs: " + e.getMessage());
-        }
-        return ingredientIds;
     }
 }

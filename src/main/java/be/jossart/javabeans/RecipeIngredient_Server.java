@@ -1,7 +1,8 @@
 package be.jossart.javabeans;
 
 import java.io.Serializable;
-import java.util.List;
+
+
 import java.util.Objects;
 
 import be.jossart.dao.AbstractDAOFactory_Server;
@@ -12,8 +13,6 @@ public class RecipeIngredient_Server implements Serializable{
 
 	//ATTRIBUTES
 	private static final long serialVersionUID = 869701072763507309L;
-	private int idIngredient;
-	private int idRecipe;
 	private double quantity;
 	private Ingredient_Server ingredient;
 	private Recipe_Server recipe;
@@ -21,19 +20,9 @@ public class RecipeIngredient_Server implements Serializable{
 	private static final DAO_Server<RecipeIngredient_Server> recipeIngredientDAO = adf.getRecipeIngredientDAO();
 	//CTOR
 	public RecipeIngredient_Server() {}
-	public RecipeIngredient_Server(int idRecipe, int idIngredient, double quantity,
-			Ingredient_Server ingredient, Recipe_Server recipe) {
-		super();
-		this.idIngredient = idIngredient;
-		this.idRecipe = idRecipe;
-		this.quantity = quantity;
-		this.ingredient = ingredient;
-		this.recipe = recipe;
-	}
-	public RecipeIngredient_Server(int idRecipe, double quantity,Ingredient_Server ingredient,
+	public RecipeIngredient_Server(double quantity, Ingredient_Server ingredient, 
 			Recipe_Server recipe) {
 		super();
-		this.idRecipe = idRecipe;
 		this.quantity = quantity;
 		this.ingredient = ingredient;
 		this.recipe = recipe;
@@ -48,31 +37,15 @@ public class RecipeIngredient_Server implements Serializable{
 	public boolean update() {
 		return recipeIngredientDAO.update(this);
 	}
-	public static RecipeIngredient_Server find(int idRecipe, int idIngredient) {
+	public static RecipeIngredient_Server find(int id) {
 		RecipeIngredientDAO_Server dao = (RecipeIngredientDAO_Server) adf.getRecipeIngredientDAO();
-		return dao.find(idRecipe, idIngredient);
+		return dao.find(id);
 	}
-	public static RecipeIngredient_Server findId(RecipeIngredient_Server recipeIngredient) {
+	public static RecipeIngredient_Server findRecipeIngredient(int idRecipe, int idIngredient) {
 		RecipeIngredientDAO_Server dao = (RecipeIngredientDAO_Server) adf.getRecipeIngredientDAO();
-		return dao.findId(recipeIngredient);
-	}
-	public static List<Integer> findIds(int id) {
-		RecipeIngredientDAO_Server dao = (RecipeIngredientDAO_Server) adf.getRecipeIngredientDAO();
-		return dao.findIds(id);
+		return dao.findRecipeIngredient(idRecipe, idIngredient);
 	}
 	//GETTERS AND SETTERS
-	public int getIdIngredient() {
-		return idIngredient;
-	}
-	public void setIdIngredient(int idIngredient) {
-		this.idIngredient = idIngredient;
-	}
-	public int getIdRecipe() {
-		return idRecipe;
-	}
-	public void setIdRecipe(int idRecipe) {
-		this.idRecipe = idRecipe;
-	}
 	public double getQuantity() {
 		return quantity;
 	}
@@ -93,12 +66,12 @@ public class RecipeIngredient_Server implements Serializable{
 	}
 	@Override
 	public String toString() {
-		return "RecipeIngredient_Server [idIngredient=" + idIngredient + ", idRecipe=" + idRecipe + ", quantity="
-				+ quantity + ", ingredient=" + ingredient + ", recipe=" + recipe + "]";
+		return "RecipeIngredient_Server [quantity="+ quantity + ", ingredient=" 
+				+ ingredient + ", recipe=" + recipe + "]";
 	}
 	@Override
 	public int hashCode() {
-		return Objects.hash(idIngredient, idRecipe, ingredient, quantity, recipe);
+		return Objects.hash(ingredient, quantity, recipe);
 	}
 	@Override
 	public boolean equals(Object obj) {
@@ -109,8 +82,7 @@ public class RecipeIngredient_Server implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		RecipeIngredient_Server other = (RecipeIngredient_Server) obj;
-		return idIngredient == other.idIngredient && idRecipe == other.idRecipe
-				&& Objects.equals(ingredient, other.ingredient)
+		return Objects.equals(ingredient, other.ingredient)
 				&& Double.doubleToLongBits(quantity) == Double.doubleToLongBits(other.quantity)
 				&& Objects.equals(recipe, other.recipe);
 	}
