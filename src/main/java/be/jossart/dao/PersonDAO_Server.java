@@ -3,9 +3,12 @@ package be.jossart.dao;
 import java.sql.CallableStatement;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import be.jossart.javabeans.Person_Server;
+import be.jossart.javabeans.RecipeGender;
+import be.jossart.javabeans.Recipe_Server;
 import oracle.jdbc.OracleTypes;
 
 public class PersonDAO_Server extends DAO_Server<Person_Server>{
@@ -141,4 +144,28 @@ public class PersonDAO_Server extends DAO_Server<Person_Server>{
 
 	    return person;
     }
+	public  Person_Server getPersonByPersonId(int person_id) {
+		String query = "SELECT * FROM PERSON WHERE IDPERSON = ?";
+		Person_Server person = new Person_Server();
+        try (PreparedStatement preparedStatement = this.connect.prepareStatement(query)) {
+            preparedStatement.setInt(1, person_id);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            	if (resultSet.next()) {
+	                person = new Person_Server();
+	                person.setIdPerson(resultSet.getInt("IdPerson"));
+	                person.setFirstname(resultSet.getString("Firstname"));
+	                person.setLastname(resultSet.getString("Lastname"));
+	                person.setUsername(resultSet.getString("Username"));
+	                //System.out.println(person);
+	            }
+            } catch (SQLException e) {
+    	        System.out.println("Error: " + e.getMessage());
+    	    }
+
+	} catch (SQLException e) {
+        System.out.println("Error: " + e.getMessage());
+    }
+		return person;
+}
+
 }

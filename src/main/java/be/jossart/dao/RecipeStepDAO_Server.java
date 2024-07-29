@@ -2,10 +2,14 @@ package be.jossart.dao;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import be.jossart.javabeans.Person_Server;
+import be.jossart.javabeans.RecipeGender;
 import be.jossart.javabeans.RecipeStep_Server;
 import be.jossart.javabeans.Recipe_Server;
 import oracle.jdbc.OracleTypes;
@@ -124,4 +128,28 @@ public class RecipeStepDAO_Server extends DAO_Server<RecipeStep_Server>{
         }
         return stepIds;
     }
+    public  List<RecipeStep_Server> GetRecipeStepsByRecipeId(int recipe_id) {
+    	System.out.println("id recipe " + recipe_id);
+		String query = "SELECT * FROM recipestep WHERE IDRECIPESTEP = ?";
+		List<RecipeStep_Server> steps = new ArrayList<RecipeStep_Server>();
+        try (PreparedStatement preparedStatement = this.connect.prepareStatement(query)) {
+            preparedStatement.setInt(1, recipe_id);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            	while (resultSet.next()) {
+                    int idRecipeStep = resultSet.getInt("IDRECIPESTEP");
+                    String INSTRUCTIONS = resultSet.getString("INSTRUCTIONS");
+                    RecipeStep_Server step = new RecipeStep_Server(idRecipeStep,INSTRUCTIONS, null) ;
+                    System.out.println(step);
+                    steps.add(step);
+                }
+            } catch (SQLException e) {
+    	        System.out.println("Error: " + e.getMessage());
+    	    }
+
+	} catch (SQLException e) {
+        System.out.println("Error: " + e.getMessage());
+    }
+		return steps;
+}
+    
 }
