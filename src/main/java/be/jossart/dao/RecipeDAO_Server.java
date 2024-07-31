@@ -2,10 +2,10 @@ package be.jossart.dao;
 
 import java.util.ArrayList;
 
+
 import java.util.List;
 import be.jossart.javabeans.Person_Server;
 import be.jossart.javabeans.RecipeGender;
-import be.jossart.javabeans.RecipeIngredient_Server;
 import be.jossart.javabeans.Recipe_Server;
 import oracle.jdbc.OracleTypes;
 import oracle.sql.ARRAY;
@@ -24,14 +24,17 @@ public class RecipeDAO_Server extends DAO_Server<Recipe_Server> {
 	public  boolean create(Recipe_Server obj) {
 		boolean success = false;
 
-		String query = "{ call Insert_Recipe(?, ?, ?) }";
-		try (CallableStatement cs = this.connect.prepareCall(query)) {
+		String query = "{ call Insert_Recipe(?, ?, ?, ?) }";
+	    try (CallableStatement cs = this.connect.prepareCall(query)) {
 
-			cs.setString(1, obj.getName());
-            cs.setString(2, obj.getRecipeGender().name());
-            cs.setInt(3, obj.getPerson().getIdPerson());
-			
-			cs.executeUpdate();
+	        cs.setString(1, obj.getName());
+	        cs.setString(2, obj.getRecipeGender().name());
+	        cs.setInt(3, obj.getPerson().getIdPerson());
+	        cs.registerOutParameter(4, java.sql.Types.INTEGER);
+
+	        cs.executeUpdate();
+	        obj.setIdRecipe(cs.getInt(4));
+	        
 			success = true;
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());

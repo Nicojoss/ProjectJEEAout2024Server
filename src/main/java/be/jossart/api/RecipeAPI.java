@@ -1,8 +1,8 @@
 package be.jossart.api;
 
 import javax.ws.rs.Consumes;
+
 import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -12,6 +12,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import be.jossart.javabeans.Person_Server;
 import be.jossart.javabeans.RecipeGender;
 import be.jossart.javabeans.Recipe_Server;
@@ -21,7 +25,7 @@ public class RecipeAPI {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response GetRecipe(@PathParam("id") int id) {
+    public Response getRecipe(@PathParam("id") int id) {
         Recipe_Server recipe = Recipe_Server.find(id);
         if (recipe == null) {
             return Response.status(Status.NOT_FOUND).build();
@@ -29,57 +33,72 @@ public class RecipeAPI {
         return Response.status(Status.OK).entity(recipe).build();
     }
     @POST
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response CreateRecipe(@FormParam("name") String name,
-            @FormParam("gender") String gender,
-            @FormParam("idPerson") int idPerson) {
-    	if (name == null || gender == null) {
-            return Response.status(Status.BAD_REQUEST).build();
-        }
-        RecipeGender recipeGender = RecipeGender.valueOf(gender);
-        Person_Server person = new Person_Server(idPerson, null, null, null, null);
-        Recipe_Server recipe = new Recipe_Server(0, name, person, recipeGender, null, null);
-        if (!recipe.create()) {
-            return Response.status(Status.SERVICE_UNAVAILABLE).build();
-        } else {
-            return Response.status(Status.CREATED).entity(recipe).build();
+    public Response createRecipe(String jsonData) {
+        try {
+            JSONObject json = new JSONObject(jsonData);
+            String name = json.getString("name");
+            String gender = json.getString("gender");
+            int idPerson = json.getInt("idPerson");
+
+            if (name == null || gender == null) {
+                return Response.status(Status.BAD_REQUEST).build();
+            }
+
+            RecipeGender recipeGender = RecipeGender.valueOf(gender);
+            Person_Server person = new Person_Server(idPerson, null, null, null, null);
+            Recipe_Server recipe = new Recipe_Server(0, name, person, recipeGender, null, null);
+
+            if (!recipe.create()) {
+                return Response.status(Status.SERVICE_UNAVAILABLE).build();
+            } else {
+                return Response.status(Status.CREATED).entity(recipe).build();
+            }
+        } catch (JSONException ex) {
+            return Response.status(Status.BAD_REQUEST).entity("Invalid JSON format").build();
         }
     }
     @PUT
-    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response UpdateRecipe(@PathParam("id") int id,
-            Recipe_Server recipe) {
+    public Response updateRecipe(String jsonData) {
         try {
-            if (recipe.getName() == null || recipe.getRecipeGender() == null) {
+            JSONObject json = new JSONObject(jsonData);
+            int idRecipe = json.getInt("idRecipe");
+            String name = json.getString("name");
+            RecipeGender recipeGender = RecipeGender.valueOf(json.getString("recipeGender"));
+            int idPerson = json.getInt("idPerson");
+
+            if (name == null || recipeGender == null) {
                 return Response.status(Status.BAD_REQUEST).build();
             }
-            Recipe_Server existingRecipe = Recipe_Server.find(id);
+
+            Recipe_Server existingRecipe = Recipe_Server.find(idRecipe);
             if (existingRecipe == null) {
                 return Response.status(Status.NOT_FOUND).build();
             }
-            existingRecipe.setName(recipe.getName());
-            existingRecipe.setRecipeGender(recipe.getRecipeGender());
-            existingRecipe.setPerson(recipe.getPerson());
+            Person_Server person = new Person_Server(idPerson, null, null, null, null);
+            
+            existingRecipe.setName(name);
+            existingRecipe.setRecipeGender(recipeGender);
+            existingRecipe.setPerson(person);
+
             if (!existingRecipe.update()) {
-                return Response.status(Status.NO_CONTENT)
-                        .build();
+                return Response.status(Status.NO_CONTENT).build();
             } else {
-                return Response.status(Status.OK)
-                        .build();
+                return Response.status(Status.OK).build();
             }
-        } catch (IllegalArgumentException e) {
-            return Response.status(Status.BAD_REQUEST)
-                    .entity("Invalid recipe gender")
-                    .build();
+        } catch (JSONException ex) {
+            return Response.status(Status.BAD_REQUEST).entity("Invalid JSON format").build();
+        } catch (IllegalArgumentException ex) {
+            return Response.status(Status.BAD_REQUEST).entity("Invalid recipe gender").build();
         }
     }
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response DeleteRecipe(@PathParam("id") int id) {
+    public Response deleteRecipe(@PathParam("id") int id) {
     	Recipe_Server recipe = new Recipe_Server(id, null, null, null, null, null);
         if (!recipe.delete()) {
             return Response.status(Status.NO_CONTENT).build();

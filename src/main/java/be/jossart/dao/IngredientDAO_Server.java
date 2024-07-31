@@ -22,13 +22,16 @@ public class IngredientDAO_Server extends DAO_Server<Ingredient_Server>{
 	public boolean create(Ingredient_Server obj) {
 			boolean success = false;
 
-			String query = "{call Insert_Ingredient(?,?)}";
+			String query = "{call Insert_Ingredient(?,?,?)}";
 			try (CallableStatement cs = this.connect.prepareCall(query)) {
 
 				cs.setString(1, obj.getName());
 				cs.setString(2, obj.getType().toString());
+				cs.registerOutParameter(3, java.sql.Types.INTEGER);
 				
-				cs.executeUpdate(); 
+				cs.executeUpdate();
+		        obj.setIdIngredient(cs.getInt(3));
+				
 				success = true;
 			} catch (SQLException e) {
 				System.out.println(e.getMessage());

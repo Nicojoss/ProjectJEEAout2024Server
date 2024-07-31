@@ -1,9 +1,7 @@
 package be.jossart.api;
 
 import javax.ws.rs.Consumes;
-
 import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -14,6 +12,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import be.jossart.javabeans.IngredientType;
 import be.jossart.javabeans.Ingredient_Server;
 
@@ -22,7 +23,7 @@ public class IngredientAPI {
 	@GET
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response GetIngredient(@PathParam("id") int id) {
+	public Response getIngredient(@PathParam("id") int id) {
 		Ingredient_Server ingredient = Ingredient_Server.find(id);
 		if(ingredient == null) {
 			return Response.status(Status.NOT_FOUND).build();
@@ -30,59 +31,69 @@ public class IngredientAPI {
 		return Response.status(Status.OK).entity(ingredient).build();
 	}
 	@POST
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON)
-	public Response CreateIngredientAndGetId(@FormParam("name") String name, 
-			@FormParam("type") String type) {
-		if(name == null || type == null) {
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-		
-		IngredientType ingredientType = IngredientType.valueOf(type);
-		Ingredient_Server ingredient = new Ingredient_Server(name, ingredientType);
-	
-		if(!ingredient.create()) {
-			return Response.status(Status.SERVICE_UNAVAILABLE).build();
-		}
-		else {
-			return Response.status(Status.CREATED).entity(ingredient).build();
-		}
-	}
-	@PUT
-    @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-	public Response UpdateIngredient(@PathParam("id") int id,
-			Ingredient_Server ingredient) {
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response createIngredient(String jsonData) {
 	    try {
-	        if (ingredient.getName() == null || ingredient.getType() == null) {
+	        JSONObject json = new JSONObject(jsonData);
+	        String name = json.getString("name");
+	        String type = json.getString("type");
+
+	        if (name == null || type == null) {
 	            return Response.status(Status.BAD_REQUEST).build();
 	        }
-	        Ingredient_Server existingIngredient = Ingredient_Server.find(id);
-            if (existingIngredient == null) {
-                return Response.status(Status.NOT_FOUND).build();
-            }
-            existingIngredient.setName(ingredient.getName());
-            existingIngredient.setType(ingredient.getType());
-	        if (!existingIngredient.update()) {
-	            return Response.status(Status.NO_CONTENT)
-	            		.build();
-	        } 
-	        else {
-	            return Response.status(Status.OK)
-	            		.build();
+
+	        IngredientType ingredientType = IngredientType.valueOf(type);
+	        Ingredient_Server ingredient = new Ingredient_Server(name, ingredientType);
+
+	        if (!ingredient.create()) {
+	            return Response.status(Status.SERVICE_UNAVAILABLE).build();
+	        } else {
+	            return Response.status(Status.CREATED).entity(ingredient).build();
 	        }
-	    } 
-	    catch (IllegalArgumentException e) {
-	        return Response.status(Status.BAD_REQUEST)
-	        		.entity("Invalid ingredient type")
-	        		.build();
+	    } catch (JSONException ex) {
+	        return Response.status(Status.BAD_REQUEST).entity("Invalid JSON format").build();
+	    }
+	}
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updateIngredient(String jsonData) {
+	    try {
+	        JSONObject json = new JSONObject(jsonData);
+	        int idIngredient = json.getInt("idIngredient");
+	        String name = json.getString("name");
+	        String type = json.getString("type");
+
+	        if (name == null || type == null) {
+	            return Response.status(Status.BAD_REQUEST).build();
+	        }
+
+	        Ingredient_Server existingIngredient = Ingredient_Server.find(idIngredient);
+	        if (existingIngredient == null) {
+	            return Response.status(Status.NOT_FOUND).build();
+	        }
+
+	        IngredientType ingredientType = IngredientType.valueOf(type);
+
+	        existingIngredient.setName(name);
+	        existingIngredient.setType(ingredientType);
+
+	        if (!existingIngredient.update()) {
+	            return Response.status(Status.NO_CONTENT).build();
+	        } else {
+	            return Response.status(Status.OK).build();
+	        }
+	    } catch (JSONException ex) {
+	        return Response.status(Status.BAD_REQUEST).entity("Invalid JSON format").build();
+	    } catch (IllegalArgumentException ex) {
+	        return Response.status(Status.BAD_REQUEST).entity("Invalid ingredient type").build();
 	    }
 	}
 	@DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-	public Response DeleteIngredient(@PathParam("id") int id) {
+	public Response deleteIngredient(@PathParam("id") int id) {
 		Ingredient_Server ingredient = new Ingredient_Server(id, null, null, null);
         if (!ingredient.delete()) {
             return Response.status(Status.NO_CONTENT).build();
