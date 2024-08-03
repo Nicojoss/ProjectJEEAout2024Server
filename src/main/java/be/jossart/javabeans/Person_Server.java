@@ -67,6 +67,10 @@ public class Person_Server implements Serializable {
 		PersonDAO_Server dao = (PersonDAO_Server) adf.getPersonDAO();
 		return dao.findId(person);
 	}
+	public static Person_Server getPersonByPersonId(int person_id) {
+		PersonDAO_Server dao = (PersonDAO_Server) adf.getPersonDAO();
+		return dao.getPersonByPersonId(person_id);
+	}
 	//GETTERS SETTERS
 	public int getIdPerson() {
 		return idPerson;

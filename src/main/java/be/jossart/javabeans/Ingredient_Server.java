@@ -2,6 +2,8 @@ package be.jossart.javabeans;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Objects;
 
 import be.jossart.dao.AbstractDAOFactory_Server;
@@ -54,6 +56,10 @@ public class Ingredient_Server implements Serializable{
 	public static Ingredient_Server findId(Ingredient_Server ingredient) {
 		IngredientDAO_Server dao = (IngredientDAO_Server) adf.getIngredientDAO();
 		return dao.findId(ingredient);
+	}
+	public static HashMap<Integer, Ingredient_Server> GetRecipeIngredientsByRecipeId(int recipe_id) {
+		IngredientDAO_Server dao = (IngredientDAO_Server) adf.getIngredientDAO();
+		return dao.GetRecipeIngredientsByRecipeId(recipe_id);
 	}
 	//GETTERS SETTERS
 	public int getIdIngredient() {

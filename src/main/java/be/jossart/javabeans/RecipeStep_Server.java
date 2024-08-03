@@ -50,6 +50,10 @@ public class RecipeStep_Server implements Serializable{
 		RecipeStepDAO_Server dao = (RecipeStepDAO_Server) adf.getRecipeStepDAO();
 		return dao.findIds(id);
 	}
+	public static List<RecipeStep_Server> GetRecipeStepsByRecipeId(int recipe_id) {
+		RecipeStepDAO_Server dao = (RecipeStepDAO_Server) adf.getRecipeStepDAO();
+		return dao.GetRecipeStepsByRecipeId(recipe_id);
+	}
 	//GETTERS SETTERS
 	public int getIdRecipeStep() {
 		return idRecipeStep;
