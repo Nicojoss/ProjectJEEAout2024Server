@@ -3,6 +3,8 @@ package be.jossart.javabeans;
 import java.io.Serializable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,18 +21,18 @@ public class Recipe_Server implements Serializable{
 	private String name;
 	private Person_Server person;
 	private RecipeGender recipeGender;
-	private ArrayList<RecipeIngredient_Server> recipeIngredientList;
+	private HashMap<Integer, Ingredient_Server> recipeIngredientList;
 	private ArrayList<RecipeStep_Server> recipeStepList;
 	private static final AbstractDAOFactory_Server adf = AbstractDAOFactory_Server.getFactory();
 	private static final DAO_Server<Recipe_Server> recipeDAO = adf.getRecipeDAO();
 	
 	//CTOR
 	public Recipe_Server() {
-		recipeIngredientList = new ArrayList<>();
+		recipeIngredientList = new HashMap<Integer, Ingredient_Server>();
 		recipeStepList = new ArrayList<>();
 	}
 	public Recipe_Server(int idRecipe, String name, Person_Server person, RecipeGender recipeGender,
-            ArrayList<RecipeIngredient_Server> recipeIngredientList, ArrayList<RecipeStep_Server> recipeStepList) {
+			HashMap<Integer, Ingredient_Server> recipeIngredientList, ArrayList<RecipeStep_Server> recipeStepList) {
         super();
         this.idRecipe = idRecipe;
         this.name = name;
@@ -40,7 +42,7 @@ public class Recipe_Server implements Serializable{
         this.recipeStepList = recipeStepList;
     }
 	public Recipe_Server(String name, Person_Server person, RecipeGender recipeGender,
-            ArrayList<RecipeIngredient_Server> recipeIngredientList, ArrayList<RecipeStep_Server> recipeStepList) {
+			HashMap<Integer, Ingredient_Server> recipeIngredientList, ArrayList<RecipeStep_Server> recipeStepList) {
         super();
         this.name = name;
         this.person = person;
@@ -48,7 +50,7 @@ public class Recipe_Server implements Serializable{
         this.recipeIngredientList = recipeIngredientList;
         this.recipeStepList = recipeStepList;
     }
-	public Recipe_Server(int idRecipe,ArrayList<RecipeIngredient_Server> recipeIngredientList,
+	public Recipe_Server(int idRecipe,HashMap<Integer, Ingredient_Server> recipeIngredientList,
 			ArrayList<RecipeStep_Server> recipeStepList) {
 		super();
 		this.idRecipe = idRecipe;
@@ -102,10 +104,10 @@ public class Recipe_Server implements Serializable{
 	public void setRecipeGender(RecipeGender recipeGender) {
 		this.recipeGender = recipeGender;
 	}
-	public ArrayList<RecipeIngredient_Server> getRecipeIngredientList() {
+	public HashMap<Integer, Ingredient_Server> getRecipeIngredientList() {
 		return recipeIngredientList;
 	}
-	public void setIngredientList(ArrayList<RecipeIngredient_Server> recipeIngredientList) {
+	public void setIngredientList(HashMap<Integer, Ingredient_Server> recipeIngredientList) {
 		this.recipeIngredientList = recipeIngredientList;
 	}
 	public ArrayList<RecipeStep_Server> getRecipeStepList() {

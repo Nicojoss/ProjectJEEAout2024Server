@@ -1,7 +1,11 @@
 package be.jossart.dao;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
+
+import be.jossart.javabeans.Ingredient_Server;
 import be.jossart.javabeans.Person_Server;
 import be.jossart.javabeans.RecipeGender;
 import be.jossart.javabeans.RecipeStep_Server;
@@ -148,12 +152,14 @@ public class RecipeDAO_Server extends DAO_Server<Recipe_Server> {
     
     public List<Recipe_Server> findRecipeByName(String recherche) {
         List<Recipe_Server> retour = new ArrayList<>();
-        String callFunction = "SELECT * FROM recipe WHERE name = ?";
+        String callFunction = "SELECT * FROM recipe r FULL JOIN recipeingredient ri ON r.IDRECIPE = ri. IDRECIPE"
+        		+ " FULL JOIN ingredient i ON i.IDINGREDIENT = ri.IDINGREDIENT WHERE r.name = ? OR i.NAME = ?";
 
         System.out.println("rechercher : " + recherche);
 
         try (PreparedStatement preparedStatement = this.connect.prepareStatement(callFunction)) {
             preparedStatement.setString(1, recherche);
+            preparedStatement.setString(2, recherche);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     int idRecette = resultSet.getInt("IDRECIPE");
@@ -184,8 +190,9 @@ public class RecipeDAO_Server extends DAO_Server<Recipe_Server> {
                             break;
                     }
                     Person_Server person = Person_Server.getPersonByPersonId(idPerson);
+                    HashMap<Integer, Ingredient_Server> ingredients = Ingredient_Server.GetRecipeIngredientsByRecipeId(idRecette);
                     ArrayList<RecipeStep_Server> steps = (ArrayList<RecipeStep_Server>) RecipeStep_Server.GetRecipeStepsByRecipeId(idRecette);
-                    retour.add(new Recipe_Server(idRecette, nom, person, gender, null, steps));
+                    retour.add(new Recipe_Server(idRecette, nom, person, gender, ingredients, steps));
                 }
             }
         } catch (SQLException e) {

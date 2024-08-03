@@ -130,7 +130,7 @@ public class RecipeStepDAO_Server extends DAO_Server<RecipeStep_Server>{
     }
     public  List<RecipeStep_Server> GetRecipeStepsByRecipeId(int recipe_id) {
     	System.out.println("id recipe " + recipe_id);
-		String query = "SELECT * FROM recipestep WHERE IDRECIPESTEP = ?";
+		String query = "SELECT * FROM recipestep WHERE IDRECIPE = ?";
 		List<RecipeStep_Server> steps = new ArrayList<RecipeStep_Server>();
         try (PreparedStatement preparedStatement = this.connect.prepareStatement(query)) {
             preparedStatement.setInt(1, recipe_id);
@@ -150,6 +150,6 @@ public class RecipeStepDAO_Server extends DAO_Server<RecipeStep_Server>{
         System.out.println("Error: " + e.getMessage());
     }
 		return steps;
-}
+    }
     
 }
