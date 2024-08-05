@@ -16,7 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import be.jossart.javabeans.IngredientType;
-import be.jossart.javabeans.Ingredient_Server;
+import be.jossart.javabeans.Ingredient;
 
 @Path("/ingredient")
 public class IngredientAPI {
@@ -24,7 +24,7 @@ public class IngredientAPI {
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getIngredient(@PathParam("id") int id) {
-		Ingredient_Server ingredient = Ingredient_Server.find(id);
+		Ingredient ingredient = Ingredient.find(id);
 		if(ingredient == null) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
@@ -44,7 +44,7 @@ public class IngredientAPI {
 	        }
 
 	        IngredientType ingredientType = IngredientType.valueOf(type);
-	        Ingredient_Server ingredient = new Ingredient_Server(name, ingredientType);
+	        Ingredient ingredient = new Ingredient(name, ingredientType);
 
 	        if (!ingredient.create()) {
 	            return Response.status(Status.SERVICE_UNAVAILABLE).build();
@@ -69,7 +69,7 @@ public class IngredientAPI {
 	            return Response.status(Status.BAD_REQUEST).build();
 	        }
 
-	        Ingredient_Server existingIngredient = Ingredient_Server.find(idIngredient);
+	        Ingredient existingIngredient = Ingredient.find(idIngredient);
 	        if (existingIngredient == null) {
 	            return Response.status(Status.NOT_FOUND).build();
 	        }
@@ -94,7 +94,7 @@ public class IngredientAPI {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
 	public Response deleteIngredient(@PathParam("id") int id) {
-		Ingredient_Server ingredient = new Ingredient_Server(id, null, null, null);
+		Ingredient ingredient = new Ingredient(id, null, null, null);
         if (!ingredient.delete()) {
             return Response.status(Status.NO_CONTENT).build();
         } else {

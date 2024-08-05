@@ -8,7 +8,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import be.jossart.javabeans.Person_Server;
+import be.jossart.javabeans.Person;
 
 @Path("/person")
 public class PersonAPI {
@@ -22,7 +22,7 @@ public class PersonAPI {
 					return Response.status(Status.BAD_REQUEST).build();
 				}
 			
-				Person_Server person = new Person_Server(firstname, lastname, username, password);
+				Person person = new Person(firstname, lastname, username, password);
 			
 				if(!person.create()) {
 					return Response.status(Status.SERVICE_UNAVAILABLE).build();
@@ -44,7 +44,7 @@ public class PersonAPI {
 				return Response.status(Status.BAD_REQUEST).build();
 		        }
 
-		    Person_Server person = Person_Server.login(username, password);
+		    Person person = Person.login(username, password);
 
 		    if (person != null) {
 		    	return Response.status(Status.OK).entity(person).build();
@@ -63,7 +63,7 @@ public class PersonAPI {
 	    	if (idPerson == 0 || newPassword == null) {
 				return Response.status(Status.BAD_REQUEST).build();
 		        }
-	        if (Person_Server.updatePassword(idPerson, newPassword) == true) {
+	        if (Person.updatePassword(idPerson, newPassword) == true) {
 	            return Response.status(Status.OK).build();
 	        } else {
 	            return Response.status(Status.NOT_MODIFIED).build();

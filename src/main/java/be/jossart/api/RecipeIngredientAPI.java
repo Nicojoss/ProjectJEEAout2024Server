@@ -1,7 +1,6 @@
 package be.jossart.api;
 
 import javax.ws.rs.Consumes;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -12,13 +11,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import be.jossart.javabeans.Ingredient_Server;
-import be.jossart.javabeans.RecipeIngredient_Server;
-import be.jossart.javabeans.Recipe_Server;
+import be.jossart.javabeans.Ingredient;
+import be.jossart.javabeans.Recipe;
 
 @Path("/recipeIngredient")
 public class RecipeIngredientAPI {
@@ -27,12 +23,12 @@ public class RecipeIngredientAPI {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRecipeIngredient(@PathParam("recipeId") int recipeId,
     		@PathParam("ingredientId") int ingredientId) {
-        RecipeIngredient_Server recipeIngredient = RecipeIngredient_Server
+        Recipe recipe = Recipe
         		.findRecipeIngredient(recipeId,ingredientId);
-        if (recipeIngredient == null) {
+        if (recipe == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        return Response.status(Status.OK).entity(recipeIngredient).build();
+        return Response.status(Status.OK).entity(recipe).build();
     }
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -44,21 +40,18 @@ public class RecipeIngredientAPI {
 	    	int ingredientId = json.getInt("ingredientId");
 	        double quantity = json.getDouble("quantity");
 	        
-			Recipe_Server existingRecipe = Recipe_Server.find(recipeId);
-			Ingredient_Server existingIngredient = Ingredient_Server
+			Recipe existingRecipe = Recipe.find(recipeId);
+			Ingredient existingIngredient = Ingredient
 					.find(ingredientId);
 	    	 
 			if (existingRecipe == null || existingIngredient == null) {
 			    return Response.status(Status.NOT_FOUND).build();
 			}
-			
-			RecipeIngredient_Server recipeIngredient = new RecipeIngredient_Server(quantity,
-					existingIngredient, existingRecipe);
-			
-			if (!recipeIngredient.create()) {
+
+			if (!Recipe.createRecipeIngredient(recipeId,ingredientId,quantity)) {
 			    return Response.status(Status.SERVICE_UNAVAILABLE).build();
 			} else {
-			    return Response.status(Status.CREATED).entity(recipeIngredient).build();
+			    return Response.status(Status.CREATED).build();
 			}
     	} catch (JSONException ex) {
             return Response.status(Status.BAD_REQUEST).entity("Invalid JSON format").build();
@@ -74,16 +67,14 @@ public class RecipeIngredientAPI {
             int ingredientId = json.getInt("ingredientId");
             double quantity = json.getDouble("quantity");
 
-            RecipeIngredient_Server existingRecipeIngredient = RecipeIngredient_Server
+            Recipe existingRecipeIngredient = Recipe
                     .findRecipeIngredient(recipeId, ingredientId);
             
             if (existingRecipeIngredient == null) {
                 return Response.status(Status.NOT_FOUND).build();
             }
 
-            existingRecipeIngredient.setQuantity(quantity);
-
-            if (!existingRecipeIngredient.update()) {
+            if (!Recipe.updateRecipeIngredient(recipeId, ingredientId, quantity)) {
                 return Response.status(Status.NO_CONTENT).build();
             } else {
                 return Response.status(Status.OK).build();
@@ -97,17 +88,15 @@ public class RecipeIngredientAPI {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteRecipeIngredient(@PathParam("recipeId") int recipeId,
     		@PathParam("ingredientId") int ingredientId) {
-    	Recipe_Server existingRecipe = Recipe_Server.find(recipeId);
-		Ingredient_Server existingIngredient = Ingredient_Server
+    	Recipe existingRecipe = Recipe.find(recipeId);
+		Ingredient existingIngredient = Ingredient
 				.find(ingredientId);
     	 
 		if (existingRecipe == null || existingIngredient == null) {
 		    return Response.status(Status.NOT_FOUND).build();
 		}
-		
-		RecipeIngredient_Server recipeIngredient = new RecipeIngredient_Server(0,
-				existingIngredient, existingRecipe);
-        if (!recipeIngredient.delete()) {
+
+        if (!Recipe.deleteRecipeIngredient(recipeId, ingredientId)) {
             return Response.status(Status.NO_CONTENT).build();
         } else {
             return Response.status(Status.OK).build();

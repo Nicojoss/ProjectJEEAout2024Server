@@ -1,22 +1,21 @@
 package be.jossart.dao;
 
 import java.sql.CallableStatement;
-
-
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import be.jossart.javabeans.Person_Server;
+import be.jossart.javabeans.Person;
 import oracle.jdbc.OracleTypes;
 
-public class PersonDAO_Server extends DAO_Server<Person_Server>{
+public class PersonDAO extends DAO<Person>{
 
-	public PersonDAO_Server(Connection conn) {
+	public PersonDAO(Connection conn) {
 		super(conn);
 	}
 
 	@Override
-	public  boolean create(Person_Server obj) {
+	public  boolean create(Person obj) {
 		boolean success = false;
 
 		String query = "{call Insert_Person(?,?,?,?)}";
@@ -38,20 +37,20 @@ public class PersonDAO_Server extends DAO_Server<Person_Server>{
 	}
 
 	@Override
-	public boolean delete(Person_Server obj) {
+	public boolean delete(Person obj) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean update(Person_Server obj) {
+	public boolean update(Person obj) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-    public Person_Server find(int id) {
-		Person_Server person = null;
+    public Person find(int id) {
+		Person person = null;
 
         String query = "{ call findPersonById(?, ?) }";
 	    try (CallableStatement cs = this.connect.prepareCall(query)) {
@@ -62,7 +61,7 @@ public class PersonDAO_Server extends DAO_Server<Person_Server>{
 
 	        try (ResultSet resultSet = (ResultSet) cs.getObject(3)) {
 	            if (resultSet.next()) {
-	                person = new Person_Server();
+	                person = new Person();
 	                person.setIdPerson(resultSet.getInt("IdPerson"));
 	                person.setFirstname(resultSet.getString("Firstname"));
 	                person.setLastname(resultSet.getString("Lastname"));
@@ -76,8 +75,8 @@ public class PersonDAO_Server extends DAO_Server<Person_Server>{
 	    return person;
     }
 	
-	public Person_Server login(String username, String password) {
-	    Person_Server person = null;
+	public Person login(String username, String password) {
+	    Person person = null;
 
 	    String query = "{call Login(?,?,?)}";
 	    try (CallableStatement cs = this.connect.prepareCall(query)) {
@@ -89,7 +88,7 @@ public class PersonDAO_Server extends DAO_Server<Person_Server>{
 
 	        try (ResultSet resultSet = (ResultSet) cs.getObject(3)) {
 	            if (resultSet.next()) {
-	                person = new Person_Server();
+	                person = new Person();
 	                person.setIdPerson(resultSet.getInt("IdPerson"));
 	                person.setFirstname(resultSet.getString("Firstname"));
 	                person.setLastname(resultSet.getString("Lastname"));
@@ -118,5 +117,51 @@ public class PersonDAO_Server extends DAO_Server<Person_Server>{
 	        System.out.println("Error: " + e.getMessage());
 	        return false;
 	    }
+	}
+	public Person findId(Person person) {
+        String query = "{ call findPersonId(?, ?) }";
+	    try (CallableStatement cs = this.connect.prepareCall(query)) {
+	    	cs.setString(1, person.getUsername());
+            cs.registerOutParameter(2, OracleTypes.CURSOR);
+
+	        cs.execute();
+
+	        try (ResultSet resultSet = (ResultSet) cs.getObject(3)) {
+	            if (resultSet.next()) {
+	                person = new Person();
+	                person.setIdPerson(resultSet.getInt("IdPerson"));
+	                person.setFirstname(resultSet.getString("Firstname"));
+	                person.setLastname(resultSet.getString("Lastname"));
+	                person.setUsername(resultSet.getString("Username"));
+	            }
+	        }
+	    } catch (SQLException e) {
+	        System.out.println("Error: " + e.getMessage());
+	    }
+
+	    return person;
+    }
+	public  Person getPersonByPersonId(int person_id) {
+		String query = "SELECT * FROM PERSON WHERE IDPERSON = ?";
+		Person person = new Person();
+        try (PreparedStatement preparedStatement = this.connect.prepareStatement(query)) {
+            preparedStatement.setInt(1, person_id);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            	if (resultSet.next()) {
+	                person = new Person();
+	                person.setIdPerson(resultSet.getInt("IdPerson"));
+	                person.setFirstname(resultSet.getString("Firstname"));
+	                person.setLastname(resultSet.getString("Lastname"));
+	                person.setUsername(resultSet.getString("Username"));
+	                //System.out.println(person);
+	            }
+            } catch (SQLException e) {
+    	        System.out.println("Error: " + e.getMessage());
+    	    }
+
+		} catch (SQLException e) {
+	        System.out.println("Error: " + e.getMessage());
+	    }
+		return person;
 	}
 }

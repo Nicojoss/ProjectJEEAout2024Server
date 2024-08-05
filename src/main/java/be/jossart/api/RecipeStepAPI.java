@@ -16,8 +16,8 @@ import javax.ws.rs.core.Response.Status;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import be.jossart.javabeans.RecipeStep_Server;
-import be.jossart.javabeans.Recipe_Server;
+import be.jossart.javabeans.RecipeStep;
+import be.jossart.javabeans.Recipe;
 
 @Path("/recipeStep")
 public class RecipeStepAPI {
@@ -25,7 +25,7 @@ public class RecipeStepAPI {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRecipeStep(@PathParam("id") int id) {
-        RecipeStep_Server recipeStep = RecipeStep_Server.find(id);
+        RecipeStep recipeStep = RecipeStep.find(id);
         if(recipeStep == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -44,8 +44,8 @@ public class RecipeStepAPI {
 	            return Response.status(Status.BAD_REQUEST).build();
 	        }
 
-	        Recipe_Server recipe = new Recipe_Server(recipeId, null, null);
-	        RecipeStep_Server recipeStep = new RecipeStep_Server(instruction, recipe);
+	        Recipe recipe = new Recipe(recipeId, null, null);
+	        RecipeStep recipeStep = new RecipeStep(instruction, recipe);
 
 	        if (!recipeStep.create()) {
 	            return Response.status(Status.SERVICE_UNAVAILABLE).build();
@@ -70,13 +70,13 @@ public class RecipeStepAPI {
 	            return Response.status(Status.BAD_REQUEST).build();
 	        }
 
-	        RecipeStep_Server existingRecipeStep = RecipeStep_Server.find(idRecipeStep);
+	        RecipeStep existingRecipeStep = RecipeStep.find(idRecipeStep);
 	        if (existingRecipeStep == null) {
 	            return Response.status(Status.NOT_FOUND).build();
 	        }
 
 	        existingRecipeStep.setInstruction(instruction);
-	        existingRecipeStep.setRecipe(new Recipe_Server(recipeId, null, null));
+	        existingRecipeStep.setRecipe(new Recipe(recipeId, null, null));
 
 	        if (!existingRecipeStep.update()) {
 	            return Response.status(Status.NO_CONTENT).build();
@@ -91,7 +91,7 @@ public class RecipeStepAPI {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteRecipeStep(@PathParam("id") int id) {
-    	RecipeStep_Server recipeStep = new RecipeStep_Server(id, null, null);
+    	RecipeStep recipeStep = new RecipeStep(id, null, null);
         if (!recipeStep.delete()) {
             return Response.status(Status.NO_CONTENT).build();
         } else {

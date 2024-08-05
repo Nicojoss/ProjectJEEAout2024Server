@@ -1,8 +1,8 @@
 package be.jossart.api;
 
 import javax.ws.rs.Consumes;
-
 import javax.ws.rs.DELETE;
+import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -16,23 +16,38 @@ import javax.ws.rs.core.Response.Status;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import be.jossart.javabeans.Person_Server;
+import be.jossart.javabeans.Person;
 import be.jossart.javabeans.RecipeGender;
-import be.jossart.javabeans.Recipe_Server;
+import be.jossart.javabeans.Recipe;
 
 @Path("/recipe")
 public class RecipeAPI {
-    @GET
+	@GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRecipe(@PathParam("id") int id) {
-        Recipe_Server recipe = Recipe_Server.find(id);
+        Recipe recipe = Recipe.find(id);
         if (recipe == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
         return Response.status(Status.OK).entity(recipe).build();
     }
-    @POST
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/search/{recherche}")
+	public Response getRechercheRecipe(@PathParam("recherche") String recherche) {
+		List<Recipe> retour = null;
+		System.out.println("rechercher : " +recherche);
+		if (recherche.length()>=50|| recherche==null) {
+			return Response.status(Status.BAD_REQUEST).build(); 
+		}else {
+			retour  = Recipe.searchRecipe(recherche);
+		}
+		
+		return Response.status(Status.OK).entity(retour).build();
+	}
+	@POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createRecipe(String jsonData) {
@@ -47,8 +62,8 @@ public class RecipeAPI {
             }
 
             RecipeGender recipeGender = RecipeGender.valueOf(gender);
-            Person_Server person = new Person_Server(idPerson, null, null, null, null);
-            Recipe_Server recipe = new Recipe_Server(0, name, person, recipeGender, null, null);
+            Person person = new Person(idPerson, null, null, null, null);
+            Recipe recipe = new Recipe(0, name, person, recipeGender, null, null);
 
             if (!recipe.create()) {
                 return Response.status(Status.SERVICE_UNAVAILABLE).build();
@@ -74,11 +89,11 @@ public class RecipeAPI {
                 return Response.status(Status.BAD_REQUEST).build();
             }
 
-            Recipe_Server existingRecipe = Recipe_Server.find(idRecipe);
+            Recipe existingRecipe = Recipe.find(idRecipe);
             if (existingRecipe == null) {
                 return Response.status(Status.NOT_FOUND).build();
             }
-            Person_Server person = new Person_Server(idPerson, null, null, null, null);
+            Person person = new Person(idPerson, null, null, null, null);
             
             existingRecipe.setName(name);
             existingRecipe.setRecipeGender(recipeGender);
@@ -99,7 +114,7 @@ public class RecipeAPI {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteRecipe(@PathParam("id") int id) {
-    	Recipe_Server recipe = new Recipe_Server(id, null, null, null, null, null);
+    	Recipe recipe = new Recipe(id, null, null, null, null, null);
         if (!recipe.delete()) {
             return Response.status(Status.NO_CONTENT).build();
         } else {

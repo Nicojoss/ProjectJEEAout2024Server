@@ -1,29 +1,30 @@
 package be.jossart.javabeans;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
-import be.jossart.dao.AbstractDAOFactory_Server;
-import be.jossart.dao.DAO_Server;
-import be.jossart.dao.RecipeStepDAO_Server;
+import be.jossart.dao.AbstractDAOFactory;
+import be.jossart.dao.DAO;
+import be.jossart.dao.RecipeStepDAO;
 
-public class RecipeStep_Server implements Serializable{
+public class RecipeStep implements Serializable{
 	//ATTRIBUTES
 	private static final long serialVersionUID = -1368662956594765085L;
 	private int idRecipeStep;
 	private String instruction;
-	private Recipe_Server recipe;
-	private static final AbstractDAOFactory_Server adf = AbstractDAOFactory_Server.getFactory();
-	private static final DAO_Server<RecipeStep_Server> recipeStepDAO = adf.getRecipeStepDAO();
+	private Recipe recipe;
+	private static final AbstractDAOFactory adf = AbstractDAOFactory.getFactory();
+	private static final DAO<RecipeStep> recipeStepDAO = adf.getRecipeStepDAO();
 	//CTOR
-	public RecipeStep_Server() { 
+	public RecipeStep() { 
 	}
-	public RecipeStep_Server(int idRecipeStep, String instruction, Recipe_Server recipe) {
+	public RecipeStep(int idRecipeStep, String instruction, Recipe recipe) {
 		this.idRecipeStep = idRecipeStep;
 		this.instruction = instruction;
 		this.recipe = recipe;
 	}
-	public RecipeStep_Server(String instruction, Recipe_Server recipe) {
+	public RecipeStep(String instruction, Recipe recipe) {
 		this.instruction = instruction;
 		this.recipe = recipe;
 	}
@@ -37,9 +38,21 @@ public class RecipeStep_Server implements Serializable{
 	public boolean update() {
 		return recipeStepDAO.update(this);
 	}
-	public static RecipeStep_Server find(int id) {
-		RecipeStepDAO_Server dao = (RecipeStepDAO_Server) adf.getRecipeStepDAO();
+	public static RecipeStep find(int id) {
+		RecipeStepDAO dao = (RecipeStepDAO) adf.getRecipeStepDAO();
 		return dao.find(id);
+	}
+	public static RecipeStep findId(RecipeStep recipeStep) {
+		RecipeStepDAO dao = (RecipeStepDAO) adf.getRecipeStepDAO();
+		return dao.findId(recipeStep);
+	}
+	public static List<Integer> findIds(int id) {
+		RecipeStepDAO dao = (RecipeStepDAO) adf.getRecipeStepDAO();
+		return dao.findIds(id);
+	}
+	public static List<RecipeStep> GetRecipeStepsByRecipeId(int recipe_id) {
+		RecipeStepDAO dao = (RecipeStepDAO) adf.getRecipeStepDAO();
+		return dao.GetRecipeStepsByRecipeId(recipe_id);
 	}
 	//GETTERS SETTERS
 	public int getIdRecipeStep() {
@@ -54,15 +67,15 @@ public class RecipeStep_Server implements Serializable{
 	public void setInstruction(String instruction) {
 		this.instruction = instruction;
 	}
-	public Recipe_Server getRecipe() {
+	public Recipe getRecipe() {
 		return recipe;
 	}
-	public void setRecipe(Recipe_Server recipe) {
+	public void setRecipe(Recipe recipe) {
 		this.recipe = recipe;
 	}
 	@Override
 	public String toString() {
-		return "RecipeStep_Server [idRecipeStep=" + idRecipeStep + ", instruction=" + instruction + ", recipe=" + recipe
+		return "RecipeStep [idRecipeStep=" + idRecipeStep + ", instruction=" + instruction + ", recipe=" + recipe
 				+ "]";
 	}
 	@Override
@@ -77,7 +90,7 @@ public class RecipeStep_Server implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		RecipeStep_Server other = (RecipeStep_Server) obj;
+		RecipeStep other = (RecipeStep) obj;
 		return idRecipeStep == other.idRecipeStep && Objects.equals(instruction, other.instruction)
 				&& Objects.equals(recipe, other.recipe);
 	}

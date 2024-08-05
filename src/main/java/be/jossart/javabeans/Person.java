@@ -4,12 +4,12 @@ import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import be.jossart.dao.AbstractDAOFactory_Server;
-import be.jossart.dao.DAO_Server;
-import be.jossart.dao.PersonDAO_Server;
+import be.jossart.dao.AbstractDAOFactory;
+import be.jossart.dao.DAO;
+import be.jossart.dao.PersonDAO;
 
 
-public class Person_Server implements Serializable {
+public class Person implements Serializable {
 	//Attributes
 	private static final long serialVersionUID = -3448923763468846826L;
 	private int idPerson;
@@ -17,11 +17,11 @@ public class Person_Server implements Serializable {
 	private String lastname;
 	private String username;
 	private String password;
-	private ArrayList<Recipe_Server> recipeList; // 0..* Donc c'est au moment ou la person va creer une recette qu'il faut l'initialiser
-	private static final AbstractDAOFactory_Server adf = AbstractDAOFactory_Server.getFactory();
-	private static final DAO_Server<Person_Server> personDAO = adf.getPersonDAO();
+	private ArrayList<Recipe> recipeList; // 0..* Donc c'est au moment ou la person va creer une recette qu'il faut l'initialiser
+	private static final AbstractDAOFactory adf = AbstractDAOFactory.getFactory();
+	private static final DAO<Person> personDAO = adf.getPersonDAO();
 	//CTOR
-	public Person_Server(int idPerson, String firstname, String lastname, String username, String password) {
+	public Person(int idPerson, String firstname, String lastname, String username, String password) {
 		super();
 		this.idPerson = idPerson;
 		this.firstname = firstname;
@@ -29,21 +29,21 @@ public class Person_Server implements Serializable {
 		this.username = username;
 		this.password = password;
 	}
-	public Person_Server(String firstname, String lastname, String username, String password) {
+	public Person(String firstname, String lastname, String username, String password) {
 		this.firstname = firstname;
 		this.lastname = lastname;
 		this.username = username;
 		this.password = password;
 	}
-	public Person_Server(int idPerson, String firstname, String lastname, String username) {
+	public Person(int idPerson, String firstname, String lastname, String username) {
 		this.idPerson = idPerson;
 		this.firstname = firstname;
 		this.lastname = lastname;
 		this.username = username;
 	}
-	public Person_Server() {
+	public Person() {
 	}
-	public Person_Server(String username, String password) {
+	public Person(String username, String password) {
 		this.username = username;
 		this.password = password;
 	}
@@ -51,17 +51,25 @@ public class Person_Server implements Serializable {
 	public boolean create() {
 		return personDAO.create(this);
 	}
-	public static Person_Server login(String username, String password) {
-		PersonDAO_Server dao = (PersonDAO_Server) adf.getPersonDAO();
+	public static Person login(String username, String password) {
+		PersonDAO dao = (PersonDAO) adf.getPersonDAO();
 		return dao.login(username, password);
 	}
 	public static boolean updatePassword(int idPerson, String newPassword) {
-		PersonDAO_Server dao = (PersonDAO_Server) adf.getPersonDAO();
+		PersonDAO dao = (PersonDAO) adf.getPersonDAO();
 		return dao.updatePassword(idPerson, newPassword);
 	}
-	public static Person_Server find(int id) {
-		PersonDAO_Server dao = (PersonDAO_Server) adf.getPersonDAO();
+	public static Person find(int id) {
+		PersonDAO dao = (PersonDAO) adf.getPersonDAO();
 		return dao.find(id);
+	}
+	public static Person findId(Person person) {
+		PersonDAO dao = (PersonDAO) adf.getPersonDAO();
+		return dao.findId(person);
+	}
+	public static Person getPersonByPersonId(int person_id) {
+		PersonDAO dao = (PersonDAO) adf.getPersonDAO();
+		return dao.getPersonByPersonId(person_id);
 	}
 	//GETTERS SETTERS
 	public int getIdPerson() {
@@ -95,15 +103,15 @@ public class Person_Server implements Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	public ArrayList<Recipe_Server> getRecipeList() {
+	public ArrayList<Recipe> getRecipeList() {
 		return recipeList;
 	}
-	public void setRecipeList(ArrayList<Recipe_Server> recipeList) {
+	public void setRecipeList(ArrayList<Recipe> recipeList) {
 		this.recipeList = recipeList;
 	}
 	@Override
 	public String toString() {
-		return "Person_Server [idPerson=" + idPerson + ", firstname=" + firstname + ", lastname=" + lastname
+		return "Person [idPerson=" + idPerson + ", firstname=" + firstname + ", lastname=" + lastname
 				+ ", username=" + username + ", password=" + password + ", recipeList=" + recipeList + "]";
 	}
 	@Override
@@ -118,7 +126,7 @@ public class Person_Server implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Person_Server other = (Person_Server) obj;
+		Person other = (Person) obj;
 		return Objects.equals(firstname, other.firstname) && idPerson == other.idPerson
 				&& Objects.equals(lastname, other.lastname) && Objects.equals(password, other.password)
 				&& Objects.equals(recipeList, other.recipeList) && Objects.equals(username, other.username);
