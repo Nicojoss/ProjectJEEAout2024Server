@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import be.jossart.connection.DbConnection;
 import be.jossart.dao.AbstractDAOFactory;
 import be.jossart.dao.DAO;
@@ -84,12 +87,14 @@ public class Recipe implements Serializable{
 		RecipeDAO dao = (RecipeDAO) adf.getRecipeDAO();
 		return dao.findRecipeIngredient(recipeId, ingredientId);
 	}
+	@JsonIgnore
 	public Ingredient getFirstIngredientFromRecipeIngredientList() {
 		for(Ingredient i : this.getRecipeIngredientList().values()){
 			return i;
 		}
 		return null;
 	}
+	@JsonIgnore
 	public double getFirstQuantityFromRecipeIngredientList() {
 		for(double i : this.getRecipeIngredientList().keySet()){
 			return i;
@@ -135,7 +140,6 @@ public class Recipe implements Serializable{
 	}
 	public static List<Recipe> searchRecipe(String recherche){
 		RecipeDAO daoRecipe = new RecipeDAO(DbConnection.getInstance());
-		
 		return daoRecipe.findRecipeByName(recherche);
 	}
 	@Override
