@@ -41,6 +41,7 @@ public class RecipeStepDAO extends DAO<RecipeStep>{
             cs.executeUpdate(); 
 			success = true;
 		} catch (SQLException e) {
+			
 			System.out.println(e.getMessage());
 		}
 

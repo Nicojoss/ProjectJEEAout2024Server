@@ -1,9 +1,11 @@
 package be.jossart.javabeans;
 
 import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -62,7 +64,20 @@ public class Recipe implements Serializable{
 		return recipeDAO.create(this);
 	}
 	public boolean delete() {
-		return recipeDAO.delete(this);
+		System.out.println("delete");
+		boolean isGood = true;
+		for (RecipeStep step : this.getRecipeStepList()) {
+			isGood = step.delete();
+			System.out.println("step" + isGood);
+		}
+		Map<Double, Ingredient> ingredientMap = this.getRecipeIngredientList();
+		for (Map.Entry<Double, Ingredient> ingredient : ingredientMap.entrySet()) {
+			isGood = Recipe.deleteRecipeIngredient(idRecipe, ingredient.getValue().getIdIngredient());
+			System.out.println("ingredient" + isGood);
+		}
+		isGood = recipeDAO.delete(this);
+		System.out.println(isGood);
+		return isGood;
 	}
 	public boolean update() {
 		return recipeDAO.update(this);

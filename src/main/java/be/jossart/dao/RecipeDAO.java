@@ -51,7 +51,7 @@ public class RecipeDAO extends DAO<Recipe> {
             cs.executeUpdate();
             success = true;
         } catch (SQLException e) {
-        	System.out.println(e.getMessage());
+        	System.out.println(e.getMessage()+ "test recipe");
         }
 
         return success;
@@ -91,11 +91,14 @@ public class RecipeDAO extends DAO<Recipe> {
 	                person = new Person();
 	                person.setIdPerson(resultSet.getInt("IdPerson"));
 	                recipe = new Recipe();
-	                recipe.setIdRecipe(resultSet.getInt("IdRecipe"));
+	                int idRecipe = resultSet.getInt("IdRecipe");
+	                recipe.setIdRecipe(idRecipe);
 	                recipe.setName(resultSet.getString("Name"));
 	                recipe.setPerson(person);
 	                recipe.setRecipeGender(RecipeGender.valueOf(resultSet
 	                		.getString("RecipeGender")));
+	                recipe.setRecipeIngredientList(Ingredient.GetRecipeIngredientsByRecipeId(idRecipe));
+	                recipe.setRecipeStepList((ArrayList<RecipeStep>) RecipeStep.GetRecipeStepsByRecipeId(idRecipe));;
 	            }
 	        }
 	    } catch (SQLException e) {
@@ -240,7 +243,7 @@ public class RecipeDAO extends DAO<Recipe> {
             cs.executeUpdate();
             success = true;
         } catch (SQLException e) {
-        	System.out.println(e.getMessage());
+        	System.out.println(e.getMessage() + " test");
         }
 
         return success;

@@ -128,7 +128,7 @@ public class RecipeAPI {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteRecipe(@PathParam("id") int id) {
-    	Recipe recipe = new Recipe(id, null, null, null, null, null);
+    	Recipe recipe = Recipe.find(id);
         if (!recipe.delete()) {
             return Response.status(Status.NO_CONTENT).build();
         } else {
