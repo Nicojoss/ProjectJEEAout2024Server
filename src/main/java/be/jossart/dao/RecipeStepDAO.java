@@ -2,7 +2,6 @@ package be.jossart.dao;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -127,27 +126,32 @@ public class RecipeStepDAO extends DAO<RecipeStep>{
         }
         return stepIds;
     }
+    
     public List<RecipeStep> GetRecipeStepsByRecipeId(int recipe_id) {
-    	System.out.println("id recipe " + recipe_id);
-		String query = "SELECT * FROM recipestep WHERE IDRECIPE = ?";
-		List<RecipeStep> steps = new ArrayList<RecipeStep>();
-        try (PreparedStatement preparedStatement = this.connect.prepareStatement(query)) {
-            preparedStatement.setInt(1, recipe_id);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-            	while (resultSet.next()) {
-                    int idRecipeStep = resultSet.getInt("IDRECIPESTEP");
-                    String INSTRUCTIONS = resultSet.getString("INSTRUCTIONS");
-                    RecipeStep step = new RecipeStep(idRecipeStep,INSTRUCTIONS, null) ;
+        System.out.println("id recipe " + recipe_id);
+        List<RecipeStep> steps = new ArrayList<>();
+        
+        String query = "{call Get_Recipe_Steps_By_Id(?, ?)}";
+        try (CallableStatement cs = this.connect.prepareCall(query)) {
+            cs.setInt(1, recipe_id);
+            cs.registerOutParameter(2, OracleTypes.CURSOR);
+
+            cs.execute();
+            try (ResultSet resultSet = (ResultSet) cs.getObject(2)) {
+                while (resultSet.next()) {
+                    int idRecipeStep = resultSet.getInt("IdRecipeStep");
+                    String instructions = resultSet.getString("Instructions");
+                    RecipeStep step = new RecipeStep(idRecipeStep, instructions, null);
                     System.out.println(step);
                     steps.add(step);
                 }
             } catch (SQLException e) {
-    	        System.out.println("Error: " + e.getMessage());
-    	    }
+                System.out.println("Error: " + e.getMessage());
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
 
-		} catch (SQLException e) {
-	        System.out.println("Error: " + e.getMessage());
-	    }
-		return steps;
+        return steps;
     }
 }

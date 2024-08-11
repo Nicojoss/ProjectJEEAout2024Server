@@ -106,23 +106,25 @@ public class RecipeDAO extends DAO<Recipe> {
     
     public List<Recipe> findRecipeByName(String recherche) {
         List<Recipe> retour = new ArrayList<>();
-        String callFunction = "SELECT * FROM recipe r FULL JOIN recipeingredient ri ON r.IDRECIPE = ri. IDRECIPE"
-        		+ " FULL JOIN ingredient i ON i.IDINGREDIENT = ri.IDINGREDIENT WHERE r.name = ? OR i.NAME = ?";
+        String query = "{call Get_Recipe_By_Name(?, ?, ?)}";
 
         System.out.println("rechercher : " + recherche);
 
-        try (PreparedStatement preparedStatement = this.connect.prepareStatement(callFunction)) {
-            preparedStatement.setString(1, recherche);
-            preparedStatement.setString(2, recherche);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    int idRecette = resultSet.getInt("IDRECIPE");
-                    String nom = resultSet.getString("name");
-                    String SGender = resultSet.getString("RECIPEGENDER");
-                    int idPerson = resultSet.getInt("IDPERSON");
-                    //System.out.println("ID Recette: " + idRecette + ", Titre: " + nom + ", Famille: " + SGender);
-                    RecipeGender gender = null;
+        try (CallableStatement cs = this.connect.prepareCall(query)) {
+        	cs.setString(1, recherche);
+        	cs.setString(2, recherche);
+        	cs.registerOutParameter(3, OracleTypes.CURSOR);
 
+        	cs.execute();
+
+            try (ResultSet resultSet = (ResultSet) cs.getObject(3)) {
+                while (resultSet.next()) {
+                    int idRecette = resultSet.getInt("IdRecipe");
+                    String nom = resultSet.getString("RecipeName");
+                    String SGender = resultSet.getString("RecipeGender");
+                    int idPerson = resultSet.getInt("IdPerson");
+
+                    RecipeGender gender = null;
                     switch (SGender) {
                         case "Entree":
                             gender = RecipeGender.Entree;
@@ -143,9 +145,11 @@ public class RecipeDAO extends DAO<Recipe> {
                             gender = RecipeGender.Dish;
                             break;
                     }
+
                     Person person = Person.getPersonByPersonId(idPerson);
                     HashMap<Double, Ingredient> ingredients = Ingredient.GetRecipeIngredientsByRecipeId(idRecette);
                     ArrayList<RecipeStep> steps = (ArrayList<RecipeStep>) RecipeStep.GetRecipeStepsByRecipeId(idRecette);
+
                     retour.add(new Recipe(idRecette, nom, person, gender, ingredients, steps));
                 }
             }
@@ -158,20 +162,22 @@ public class RecipeDAO extends DAO<Recipe> {
     
     public List<Recipe> findPersonRecipes(int person_id) {
         List<Recipe> retour = new ArrayList<>();
-        String callFunction = "SELECT * FROM recipe WHERE IDPERSON = ?";
+        String query = "{call Get_Person_Recipes(?, ?)}";
 
+        try (CallableStatement cs = this.connect.prepareCall(query)) {
+        	cs.setInt(1, person_id);
+        	cs.registerOutParameter(2, OracleTypes.CURSOR);
 
-        try (PreparedStatement preparedStatement = this.connect.prepareStatement(callFunction)) {
-            preparedStatement.setInt(1, person_id);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+        	cs.execute();
+
+            try (ResultSet resultSet = (ResultSet) cs.getObject(2)) {
                 while (resultSet.next()) {
-                    int idRecette = resultSet.getInt("IDRECIPE");
-                    String nom = resultSet.getString("name");
-                    String SGender = resultSet.getString("RECIPEGENDER");
-                    int idPerson = resultSet.getInt("IDPERSON");
-                    //System.out.println("ID Recette: " + idRecette + ", Titre: " + nom + ", Famille: " + SGender);
-                    RecipeGender gender = null;
+                    int idRecette = resultSet.getInt("IdRecipe");
+                    String nom = resultSet.getString("RecipeName");
+                    String SGender = resultSet.getString("RecipeGender");
+                    int idPerson = resultSet.getInt("IdPerson");
 
+                    RecipeGender gender = null;
                     switch (SGender) {
                         case "Entree":
                             gender = RecipeGender.Entree;
@@ -192,9 +198,11 @@ public class RecipeDAO extends DAO<Recipe> {
                             gender = RecipeGender.Dish;
                             break;
                     }
+
                     Person person = Person.getPersonByPersonId(idPerson);
                     HashMap<Double, Ingredient> ingredients = Ingredient.GetRecipeIngredientsByRecipeId(idRecette);
                     ArrayList<RecipeStep> steps = (ArrayList<RecipeStep>) RecipeStep.GetRecipeStepsByRecipeId(idRecette);
+
                     retour.add(new Recipe(idRecette, nom, person, gender, ingredients, steps));
                 }
             }

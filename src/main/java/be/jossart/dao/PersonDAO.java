@@ -2,7 +2,6 @@ package be.jossart.dao;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import be.jossart.javabeans.Person;
@@ -141,27 +140,30 @@ public class PersonDAO extends DAO<Person>{
 
 	    return person;
     }
-	public  Person getPersonByPersonId(int person_id) {
-		String query = "SELECT * FROM PERSON WHERE IDPERSON = ?";
-		Person person = new Person();
-        try (PreparedStatement preparedStatement = this.connect.prepareStatement(query)) {
-            preparedStatement.setInt(1, person_id);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-            	if (resultSet.next()) {
+	public Person getPersonByPersonId(int person_id) {
+	    Person person = null;
+	    String query = "{call Get_Person_By_Id(?, ?)}";
+
+	    try (CallableStatement cs = this.connect.prepareCall(query)) {
+	        cs.setInt(1, person_id);
+	        cs.registerOutParameter(2, OracleTypes.CURSOR);
+
+	        cs.execute();
+	        try (ResultSet resultSet = (ResultSet) cs.getObject(2)) {
+	            if (resultSet.next()) {
 	                person = new Person();
 	                person.setIdPerson(resultSet.getInt("IdPerson"));
 	                person.setFirstname(resultSet.getString("Firstname"));
 	                person.setLastname(resultSet.getString("Lastname"));
 	                person.setUsername(resultSet.getString("Username"));
-	                //System.out.println(person);
 	            }
-            } catch (SQLException e) {
-    	        System.out.println("Error: " + e.getMessage());
-    	    }
-
-		} catch (SQLException e) {
+	        } catch (SQLException e) {
+	            System.out.println("Error: " + e.getMessage());
+	        }
+	    } catch (SQLException e) {
 	        System.out.println("Error: " + e.getMessage());
 	    }
-		return person;
+
+	    return person;
 	}
 }
