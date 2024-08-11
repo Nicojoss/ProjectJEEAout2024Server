@@ -142,6 +142,10 @@ public class Recipe implements Serializable{
 		RecipeDAO daoRecipe = new RecipeDAO(DbConnection.getInstance());
 		return daoRecipe.findRecipeByName(recherche);
 	}
+	public static List<Recipe> findPersonRecipes(int person_id){
+		RecipeDAO daoRecipe = new RecipeDAO(DbConnection.getInstance());
+		return daoRecipe.findPersonRecipes(person_id);
+	}
 	@Override
 	public String toString() {
 		return "Recipe [idRecipe=" + idRecipe + ", name=" + name + ", person=" + person + ", recipeGender="

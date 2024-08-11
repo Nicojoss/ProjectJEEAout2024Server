@@ -156,6 +156,55 @@ public class RecipeDAO extends DAO<Recipe> {
         return retour;
     }
     
+    public List<Recipe> findPersonRecipes(int person_id) {
+        List<Recipe> retour = new ArrayList<>();
+        String callFunction = "SELECT * FROM recipe WHERE IDPERSON = ?";
+
+
+        try (PreparedStatement preparedStatement = this.connect.prepareStatement(callFunction)) {
+            preparedStatement.setInt(1, person_id);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    int idRecette = resultSet.getInt("IDRECIPE");
+                    String nom = resultSet.getString("name");
+                    String SGender = resultSet.getString("RECIPEGENDER");
+                    int idPerson = resultSet.getInt("IDPERSON");
+                    //System.out.println("ID Recette: " + idRecette + ", Titre: " + nom + ", Famille: " + SGender);
+                    RecipeGender gender = null;
+
+                    switch (SGender) {
+                        case "Entree":
+                            gender = RecipeGender.Entree;
+                            break;
+                        case "Dish":
+                            gender = RecipeGender.Dish;
+                            break;
+                        case "Desserts":
+                            gender = RecipeGender.Desserts;
+                            break;
+                        case "Cocktails":
+                            gender = RecipeGender.Cocktails;
+                            break;
+                        case "VegetarianDishes":
+                            gender = RecipeGender.VegetarianDishes;
+                            break;
+                        default:
+                            gender = RecipeGender.Dish;
+                            break;
+                    }
+                    Person person = Person.getPersonByPersonId(idPerson);
+                    HashMap<Double, Ingredient> ingredients = Ingredient.GetRecipeIngredientsByRecipeId(idRecette);
+                    ArrayList<RecipeStep> steps = (ArrayList<RecipeStep>) RecipeStep.GetRecipeStepsByRecipeId(idRecette);
+                    retour.add(new Recipe(idRecette, nom, person, gender, ingredients, steps));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return retour;
+    }
+    
     public boolean createRecipeIngredient(int recipeId, int ingredientId, double quantity) {
 		boolean success = false;
 		String query = "{ call Insert_RecipeIngredient(?, ?, ?) }";

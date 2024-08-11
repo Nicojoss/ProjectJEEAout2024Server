@@ -38,11 +38,25 @@ public class RecipeAPI {
 	@Path("/search/{recherche}")
 	public Response getRechercheRecipe(@PathParam("recherche") String recherche) {
 		List<Recipe> retour = null;
-		System.out.println("rechercher : " +recherche);
+		//System.out.println("rechercher : " +recherche);
 		if (recherche.length()>=50|| recherche==null) {
 			return Response.status(Status.BAD_REQUEST).build(); 
 		}else {
 			retour  = Recipe.searchRecipe(recherche);
+		}
+		
+		return Response.status(Status.OK).entity(retour).build();
+	}
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/personRecipes/{personId}")
+	public Response getRechercheRecipe(@PathParam("personId") int person_id) {
+		List<Recipe> retour = null;
+		//System.out.println("rechercher : " +recherche);
+		if (person_id <= 0) {
+			return Response.status(Status.BAD_REQUEST).build(); 
+		}else {
+			retour  = Recipe.findPersonRecipes(person_id);
 		}
 		
 		return Response.status(Status.OK).entity(retour).build();
