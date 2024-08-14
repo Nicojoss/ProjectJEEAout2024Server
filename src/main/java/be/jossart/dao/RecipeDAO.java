@@ -3,6 +3,8 @@ package be.jossart.dao;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import be.jossart.javabeans.Ingredient;
 import be.jossart.javabeans.Person;
 import be.jossart.javabeans.RecipeGender;
@@ -59,7 +61,7 @@ public class RecipeDAO extends DAO<Recipe> {
 
     @Override
     public boolean update(Recipe obj) {
-    	boolean success = false;
+        boolean success = false;
         String query = "{ call Update_Recipe(?, ?, ?, ?) }";
 
         try (CallableStatement cs = this.connect.prepareCall(query)) {
@@ -70,8 +72,22 @@ public class RecipeDAO extends DAO<Recipe> {
 
             cs.executeUpdate();
             success = true;
+
+            for (Map.Entry<Double, Ingredient> entry : obj.getRecipeIngredientList().entrySet()) {
+                double quantity = entry.getKey();
+                Ingredient ingredient = entry.getValue();
+                ingredient.update();
+                updateRecipeIngredient(obj.getIdRecipe(), ingredient.getIdIngredient(), quantity);
+            }
+            
+            for (RecipeStep step : obj.getRecipeStepList()) {
+                if (step.getRecipe() == null) {
+                    step.setRecipe(obj);
+                }
+                step.update();
+            }
         } catch (SQLException e) {
-        	System.out.println(e.getMessage());
+            System.out.println(e.getMessage());
         }
 
         return success;
