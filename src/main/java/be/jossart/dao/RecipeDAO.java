@@ -127,8 +127,6 @@ public class RecipeDAO extends DAO<Recipe> {
         List<Recipe> retour = new ArrayList<>();
         String query = "{call Get_Recipe_By_Name(?, ?, ?)}";
 
-        System.out.println("rechercher : " + recherche);
-
         try (CallableStatement cs = this.connect.prepareCall(query)) {
         	cs.setString(1, recherche);
         	cs.setString(2, recherche);
@@ -279,7 +277,6 @@ public class RecipeDAO extends DAO<Recipe> {
         } catch (SQLException e) {
         	System.out.println(e.getMessage());
         }
-
         return success;
     }
     

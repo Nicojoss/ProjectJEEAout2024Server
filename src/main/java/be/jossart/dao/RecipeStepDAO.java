@@ -129,7 +129,6 @@ public class RecipeStepDAO extends DAO<RecipeStep>{
     }
     
     public List<RecipeStep> GetRecipeStepsByRecipeId(int recipe_id) {
-        System.out.println("id recipe " + recipe_id);
         List<RecipeStep> steps = new ArrayList<>();
         
         String query = "{call Get_Recipe_Steps_By_Id(?, ?)}";
@@ -143,7 +142,6 @@ public class RecipeStepDAO extends DAO<RecipeStep>{
                     int idRecipeStep = resultSet.getInt("IdRecipeStep");
                     String instructions = resultSet.getString("Instructions");
                     RecipeStep step = new RecipeStep(idRecipeStep, instructions, null);
-                    System.out.println(step);
                     steps.add(step);
                 }
             } catch (SQLException e) {

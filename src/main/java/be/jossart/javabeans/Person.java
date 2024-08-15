@@ -17,7 +17,7 @@ public class Person implements Serializable {
 	private String lastname;
 	private String username;
 	private String password;
-	private ArrayList<Recipe> recipeList; // 0..* Donc c'est au moment ou la person va creer une recette qu'il faut l'initialiser
+	private ArrayList<Recipe> recipeList;
 	private static final AbstractDAOFactory adf = AbstractDAOFactory.getFactory();
 	private static final DAO<Person> personDAO = adf.getPersonDAO();
 	//CTOR

@@ -104,7 +104,6 @@ public class IngredientDAO extends DAO<Ingredient>{
     }
     
     public HashMap<Double, Ingredient> GetRecipeIngredientsByRecipeId(int recipe_id) {
-        System.out.println("id recipe " + recipe_id);
         HashMap<Double, Ingredient> ingredients = new HashMap<>();
         
         String query = "{call Get_Recipe_Ingredients(?, ?)}";
